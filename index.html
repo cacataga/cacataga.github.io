@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Phrase Sprint</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Kosugi+Maru&family=Outfit:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="panel hero">
+        <div class="hero-copy">
+          <p class="eyebrow">Original Browser Typing Game</p>
+          <h1>Phrase Sprint</h1>
+          <p class="lede">
+            日本語を見て英単語を打つ、ブラウザ向けのオリジナルタイピングゲームです。レベルに応じてヒント表示が減り、苦手な単語はあとから復習できます。
+          </p>
+        </div>
+
+        <div class="control-grid is-hidden">
+          <label class="control">
+            <span>プレイヤー名</span>
+            <input id="player-name" type="text" maxlength="20" placeholder="Player1" value="Player1" />
+          </label>
+
+          <label class="control">
+            <span>レベル</span>
+            <select id="level-select">
+              <option value="0">Level 0: 全文字表示</option>
+              <option value="1">Level 1: 母音だけ非表示</option>
+              <option value="2">Level 2: 子音だけ非表示</option>
+              <option value="3">Level 3: 全文字非表示</option>
+            </select>
+          </label>
+
+          <label class="control">
+            <span>モード</span>
+            <select id="mode-select">
+              <option value="normal">通常プレイ</option>
+              <option value="review">復習プレイ</option>
+            </select>
+          </label>
+
+          <label class="control">
+            <span>制限時間</span>
+            <select id="duration-select">
+              <option value="45">45秒</option>
+              <option value="60" selected>60秒</option>
+              <option value="90">90秒</option>
+            </select>
+          </label>
+
+          <label class="control">
+            <span>ヒント</span>
+            <select id="hint-select">
+              <option value="off">OFF</option>
+              <option value="on">ON</option>
+            </select>
+          </label>
+
+          <label class="control is-hidden">
+            <span>音声</span>
+            <select id="voice-select">
+              <option value="">音声を読み込み中...</option>
+            </select>
+          </label>
+
+          <label class="control control-debug is-hidden">
+            <span>文字音声速度</span>
+            <input id="letter-rate" type="range" min="0.8" max="2" step="0.05" value="1.20" />
+            <strong id="letter-rate-value">1.20</strong>
+          </label>
+
+          <label class="control control-debug is-hidden">
+            <span>単語音声速度</span>
+            <input id="word-rate" type="range" min="0.8" max="2" step="0.05" value="1.02" />
+            <strong id="word-rate-value">1.02</strong>
+          </label>
+        </div>
+
+        <div class="actions">
+          <button id="start-btn" type="button">スタート</button>
+          <button id="restart-btn" type="button" class="ghost">リセット</button>
+          <button id="review-btn" type="button" class="ghost">復習モードへ</button>
+          <button id="fullscreen-btn" type="button" class="ghost">全画面</button>
+          <button id="speech-btn" type="button" class="ghost">音声読み上げON</button>
+          <button id="sound-btn" type="button" class="ghost">サウンドON</button>
+        </div>
+        <p class="hint">Enterで開始 / Escで全画面終了 / Spaceはスクロール無効 / タイピング中の `f` は通常入力として扱います</p>
+      </section>
+
+      <section class="play-grid">
+        <section class="panel game-wrap">
+          <section class="panel hud hud-inline">
+            <div>
+              <span class="label">TIME</span>
+              <strong id="time-value">45.0</strong>
+            </div>
+            <div>
+              <span class="label">SCORE</span>
+              <strong id="score-value">0</strong>
+            </div>
+            <div>
+              <span class="label">COMBO</span>
+              <strong id="combo-value">0</strong>
+            </div>
+            <div>
+              <span class="label">ACCURACY</span>
+              <strong id="accuracy-value">100%</strong>
+            </div>
+            <div>
+              <span class="label">PLAYER</span>
+              <strong id="player-value">Player1</strong>
+            </div>
+            <div>
+              <span class="label">LEVEL</span>
+              <strong id="level-value">1</strong>
+            </div>
+          </section>
+          <canvas id="game" width="960" height="540" aria-label="Typing game canvas"></canvas>
+        </section>
+
+        <aside class="panel illustration-panel">
+          <div class="illustration-card">
+            <span class="label">ILLUSTRATION</span>
+            <img id="word-image" alt="単語イラスト" hidden />
+            <div id="image-placeholder" class="image-placeholder">
+              `assets/illustrations/単語ID.png` に画像を置くとここに表示されます
+            </div>
+          </div>
+        </aside>
+      </section>
+
+      <section class="info-grid">
+        <section class="panel settings-panel">
+          <div class="card-head">
+            <h2>設定</h2>
+            <p>プレイヤー名、レベル、モード、制限時間などをここで切り替えます。</p>
+          </div>
+          <div class="control-grid control-grid-bottom">
+            <label class="control">
+              <span>プレイヤー名</span>
+              <input id="player-name-bottom" type="text" maxlength="20" placeholder="Player1" value="Player1" />
+            </label>
+
+            <label class="control">
+              <span>レベル</span>
+              <select id="level-select-bottom">
+                <option value="0">Level 0: 全文字表示</option>
+                <option value="1">Level 1: 母音だけ非表示</option>
+                <option value="2">Level 2: 子音だけ非表示</option>
+                <option value="3">Level 3: 全文字非表示</option>
+              </select>
+            </label>
+
+            <label class="control">
+              <span>モード</span>
+              <select id="mode-select-bottom">
+                <option value="normal">通常プレイ</option>
+                <option value="review">復習プレイ</option>
+              </select>
+            </label>
+
+            <label class="control">
+              <span>制限時間</span>
+              <select id="duration-select-bottom">
+                <option value="45">45秒</option>
+                <option value="60" selected>60秒</option>
+                <option value="90">90秒</option>
+              </select>
+            </label>
+
+            <label class="control">
+              <span>ヒント</span>
+              <select id="hint-select-bottom">
+                <option value="off">OFF</option>
+                <option value="on">ON</option>
+              </select>
+            </label>
+          </div>
+        </section>
+
+        <aside class="panel side-panel">
+          <div class="stats-card">
+            <div class="card-head">
+              <h2>苦手単語ランキング</h2>
+              <p id="review-summary">復習候補はまだありません。</p>
+            </div>
+            <ul id="hard-words-list" class="rank-list"></ul>
+          </div>
+
+          <div class="stats-card">
+            <div class="card-head">
+              <h2>直近のミス記録</h2>
+              <p>誰が、どの単語で、どの文字を間違えたかを保存します。</p>
+            </div>
+            <ul id="mistake-log-list" class="log-list"></ul>
+          </div>
+        </aside>
+      </section>
+    </main>
+
+    <script src="./game.js"></script>
+  </body>
+</html>
