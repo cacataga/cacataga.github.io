@@ -18,7 +18,7 @@
 - `game.js`: ゲーム本体
 - `data/words.csv`: 単語データ
 - `assets/illustrations/manifest.json`: 単語IDと画像ファイル名の対応表
-- `assets/illustrations/shared-halloween.png`: テスト用共通画像
+- `assets/illustrations/shared-halloween.svg`: テスト用共通画像
 
 ## ローカル起動
 
@@ -30,4 +30,4 @@ npm start
 
 ## 公開
 
-このリポジトリは GitHub Pages でそのまま公開できます.
+このリポジトリは GitHub Pages でそのまま公開できます。
